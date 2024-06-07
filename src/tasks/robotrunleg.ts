@@ -68,7 +68,7 @@ let smoke = 1;
 
 function firstWorkshed() {
   return (
-    $items`model train set, Asdon Martin keyfob (on ring), cold medicine cabinet, Little Geneticist DNA-Splicing Lab, portable Mayo Clinic`.find(
+    $items`Asdon Martin keyfob (on ring), Little Geneticist DNA-Splicing Lab`.find(
       (it) => have(it) || getWorkshed() === it || storageAmount(it) > 0
     ) || $item`none`
   );
