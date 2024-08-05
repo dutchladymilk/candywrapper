@@ -8,7 +8,6 @@ import {
   getClanName,
   getWorkshed,
   guildStoreAvailable,
-  handlingChoice,
   haveEffect,
   hippyStoneBroken,
   holiday,
@@ -50,16 +49,11 @@ import {
   set,
   uneffect,
 } from "libram";
-import { getCurrentLeg, Leg, Quest } from "./structure";
-import {
-  bestFam,
-  getGarden,
-  maxBase,
-  noML,
-  stooperDrunk,
-  totallyDrunk,
-} from "./utils";
+
 import { args } from "../args";
+
+import { getCurrentLeg, Leg, Quest } from "./structure";
+import { bestFam, getGarden, maxBase, noML, stooperDrunk, totallyDrunk } from "./utils";
 
 let garboDone = false;
 
@@ -75,9 +69,11 @@ export function GarboWeenQuest(): Quest {
         do: () => cliExecute(`/whitelist ${args.clan}`),
       },
       {
-        name: "Acquire Carpe",
-        completed: () => !args.carpe|| have($item`carpe`),
-        do: () => cliExecute("acquire carpe"),
+        name: "LGR Seed",
+        ready: () => have($item`lucky gold ring`) && have($item`one-day ticket to Dinseylandfill`),
+        completed: () => get("_stenchAirportToday") || get("stenchAirportAlways"),
+        do: () => use($item`one-day ticket to Dinseylandfill`),
+        tracking: "Garbo",
       },
       {
         name: "Prep Fireworks Shop",
@@ -135,7 +131,7 @@ export function GarboWeenQuest(): Quest {
             totallyDrunk() || !have($item`Drunkula's wineglass`)
               ? myAdventures()
               : myAdventures() + 60,
-            false
+            false,
           ),
         limit: { tries: 5 },
       },
@@ -159,7 +155,7 @@ export function GarboWeenQuest(): Quest {
               .tryItem($item`porquoise-handled sixgun`)
               .trySkill($skill`Sing Along`)
               .attack()
-              .repeat()
+              .repeat(),
           ),
       },
       {
@@ -170,29 +166,6 @@ export function GarboWeenQuest(): Quest {
           DNALab.makeTonic(3);
           DNALab.hybridize();
         },
-      },
-      {
-        name: "June Cleaver",
-        completed: () =>
-          !have($item`June cleaver`) || get("_juneCleaverFightsLeft") > 0 || myAdventures() === 0,
-        choices: {
-          1467: 3, //Poetic Justice
-          1468: get("_juneCleaverSkips") < 5 ? 4 : 2, //Aunts not Ants
-          1469: 3, //Beware of Aligator
-          1470: get("_juneCleaverSkips") < 5 ? 4 : 2, //Teacher's Pet
-          1471: 1, //Lost and Found
-          1472: get("_juneCleaverSkips") < 5 ? 4 : 1, //Summer Days
-          1473: get("_juneCleaverSkips") < 5 ? 4 : 1, //Bath Time
-          1474: get("_juneCleaverSkips") < 5 ? 4 : 2, //Delicious Sprouts
-          1475: 1, //Hypnotic Master
-        },
-        do: $location`Noob Cave`,
-        post: () => {
-          if (handlingChoice()) visitUrl("main.php");
-          if (have($effect`Beaten Up`)) uneffect($effect`Beaten Up`);
-        },
-        outfit: () => ({ equip: $items`June cleaver` }),
-        limit: undefined,
       },
       {
         name: "Restore HP",
@@ -232,7 +205,7 @@ export function GarboWeenQuest(): Quest {
             .trySkill($skill`Feel Pride`)
             .tryItem(...$items`shard of double-ice, gas can`)
             .attack()
-            .repeat()
+            .repeat(),
         ),
         tracking: "Leveling",
       },
@@ -242,8 +215,8 @@ export function GarboWeenQuest(): Quest {
         completed: () =>
           Math.min(
             ...$items`figurine of a wretched-looking seal, seal-blubber candle`.map((it) =>
-              availableAmount(it)
-            )
+              availableAmount(it),
+            ),
           ) >= 40,
         acquire: $items`figurine of a wretched-looking seal, seal-blubber candle`.map((it) => ({
           item: it,
@@ -253,9 +226,10 @@ export function GarboWeenQuest(): Quest {
       },
       {
         name: "CONSUME ALL",
-        completed: () => (myFullness() >= fullnessLimit()) &&
-          (mySpleenUse() >= spleenLimit()) &&
-          (myInebriety() >= inebrietyLimit()),
+        completed: () =>
+          myFullness() >= fullnessLimit() &&
+          mySpleenUse() >= spleenLimit() &&
+          myInebriety() >= inebrietyLimit(),
         do: () => cliExecute("consume ALL"),
       },
       {
@@ -264,17 +238,17 @@ export function GarboWeenQuest(): Quest {
         do: (): void => {
           cliExecute(`${args.garboascend} nodiet nobarf target="witchess knight"`);
           garboDone = true;
-        }
+        },
       },
       {
         name: "Freecandy time",
         ready: () => holiday().includes("Halloween"),
-        completed: () => myAdventures()/5 < 1,
+        completed: () => myAdventures() / 5 < 1,
         prepare: () => uneffect($effect`Beaten Up`),
         do: (): void => {
-            if(have($familiar`Trick-or-Treating Tot`)) cliExecute("familiar Trick-or-Treating Tot")
-            else if(have($familiar`Red-Nosed Snapper`)) cliExecute("familiar snapper")
-            cliExecute(`freecandy ${myAdventures()}`);
+          if (have($familiar`Trick-or-Treating Tot`)) cliExecute("familiar Trick-or-Treating Tot");
+          else if (have($familiar`Red-Nosed Snapper`)) cliExecute("familiar snapper");
+          cliExecute(`freecandy ${myAdventures()}`);
         },
         clear: "all",
         tracking: "Freecandy",
@@ -282,11 +256,15 @@ export function GarboWeenQuest(): Quest {
       },
       {
         name: "Do Pizza",
-        completed: () => have($item`Pizza of Legend`) && have($item`Deep Dish of Legend`) && have($item`Calzone of Legend`),
+        completed: () =>
+          have($item`Pizza of Legend`) &&
+          have($item`Deep Dish of Legend`) &&
+          have($item`Calzone of Legend`),
         do: (): void => {
-        !have($item`Pizza of Legend`) ? retrieveItem($item`Pizza of Legend`): undefined;
-        !have($item`Deep Dish of Legend`) ? retrieveItem($item`Deep Dish of Legend`) : undefined;
-        !have($item`Calzone of Legend`) ? retrieveItem($item`Calzone of Legend`) : undefined;} ,
+          !have($item`Pizza of Legend`) ? retrieveItem($item`Pizza of Legend`) : undefined;
+          !have($item`Deep Dish of Legend`) ? retrieveItem($item`Deep Dish of Legend`) : undefined;
+          !have($item`Calzone of Legend`) ? retrieveItem($item`Calzone of Legend`) : undefined;
+        },
       },
       {
         name: "Stooper",
@@ -309,10 +287,11 @@ export function GarboWeenQuest(): Quest {
       {
         name: "Freecandy Drunk",
         ready: () => holiday().includes("Halloween"),
-        completed: () => Math.floor(myAdventures()/5) === 0,
+        completed: () => Math.floor(myAdventures() / 5) === 0,
         prepare: () => uneffect($effect`Beaten Up`),
         do: (): void => {
-            cliExecute(`freeCandy ${myAdventures()}`);
+          useFamiliar($familiar`Red-Nosed Snapper`);
+          cliExecute(`freeCandy ${myAdventures()}`);
         },
         clear: "all",
         tracking: "Freecandy",
