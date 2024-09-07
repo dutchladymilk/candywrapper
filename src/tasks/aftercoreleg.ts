@@ -3,6 +3,8 @@ import {
   availableAmount,
   buy,
   cliExecute,
+  eat,
+  fullnessLimit,
   getCampground,
   getClanName,
   getWorkshed,
@@ -17,6 +19,7 @@ import {
   myAdventures,
   myClass,
   myDaycount,
+  myFullness,
   myHp,
   myInebriety,
   myLevel,
@@ -27,6 +30,7 @@ import {
   restoreHp,
   restoreMp,
   retrieveItem,
+  toBoolean,
   use,
   useFamiliar,
   useSkill,
@@ -62,10 +66,12 @@ import { args } from "../args";
 import { Quest } from "./structure";
 import {
   bestFam,
+  copyTarget,
   getGarden,
   isGoodGarboScript,
   maxBase,
   noML,
+  pvpCloset,
   stooperDrunk,
   totallyDrunk,
 } from "./utils";
@@ -107,6 +113,12 @@ export function AftercoreQuest(): Quest {
         name: "Whitelist VIP Clan",
         completed: () => !args.clan || getClanName().toLowerCase() === args.clan.toLowerCase(),
         do: () => cliExecute(`/whitelist ${args.clan}`),
+      },
+      {
+        name: "PvP Closet Safety 1",
+        ready: () => args.pvp && get("autoSatisfyWithCloset"),
+        completed: () => toBoolean(get("_safetyCloset1")),
+        do: () => pvpCloset(1),
       },
       {
         name: "Get Floundry item",
@@ -397,10 +409,26 @@ export function AftercoreQuest(): Quest {
         do: () => false,
       },
       {
+        name: "PvP Closet Safety 2",
+        ready: () => args.pvp && get("autoSatisfyWithCloset"),
+        completed: () => toBoolean(get("_safetyCloset2")),
+        do: () => pvpCloset(2),
+      },
+      {
+        name: "Pre-Garbo Food Time",
+        ready: () => myFullness() + 2 < fullnessLimit(),
+        completed: () => have($effect`Feeling Fancy`),
+        prepare: () => retrieveItem($item`roasted vegetable focaccia`),
+        do: () => eat($item`roasted vegetable focaccia`),
+        clear: "all",
+        tracking: "Garbo",
+        limit: { tries: 1 }, //this will run again after installing CMC, by magic
+      },
+      {
         name: "Garbo",
         completed: () => stooperDrunk() || myAdventures() === 0,
         prepare: () => uneffect($effect`Beaten Up`),
-        do: () => cliExecute(args.garboascend),
+        do: () => cliExecute(`${args.garboascend} ${copyTarget()}`),
         post: () => {
           if (myAdventures() === 0)
             $effects`Power Ballad of the Arrowsmith, Stevedave's Shanty of Superiority, The Moxious Madrigal, The Magical Mojomuscular Melody, Aloysius' Antiphon of Aptitude, Ur-Kel's Aria of Annoyance`
@@ -492,6 +520,12 @@ export function AftercoreQuest(): Quest {
         tracking: "Garbo",
       },
       {
+        name: "PvP Closet Safety 3",
+        ready: () => args.pvp && get("autoSatisfyWithCloset"),
+        completed: () => toBoolean(get("_safetyCloset3")),
+        do: () => pvpCloset(3),
+      },
+      {
         name: "Comb Beach",
         ready: () => have($item`Beach Comb`),
         completed: () => myAdventures() === 0,
@@ -506,12 +540,21 @@ export function AftercoreQuest(): Quest {
         tracking: "Garbo",
       },
       {
+        name: "Break Stone",
+        ready: () => args.safepvp,
+        completed: () => hippyStoneBroken() || !args.pvp,
+        do: (): void => {
+          visitUrl("peevpee.php?action=smashstone&pwd&confirm=on", true);
+          visitUrl("peevpee.php?place=fight");
+        },
+      },
+      {
         name: "PvP",
         completed: () => pvpAttacksLeft() === 0 || !hippyStoneBroken(),
         do: (): void => {
           cliExecute("unequip");
           cliExecute("UberPvPOptimizer");
-          cliExecute("swagger");
+          cliExecute(`PVP_MAB target=${args.pvpTarget}`);
         },
       },
       {

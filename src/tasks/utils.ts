@@ -4,6 +4,7 @@ import {
   Effect,
   Familiar,
   fullnessLimit,
+  gamedayToInt,
   getCampground,
   inebrietyLimit,
   Item,
@@ -14,11 +15,10 @@ import {
   myFamiliar,
   myFullness,
   myInebriety,
-  myRobotEnergy,
   mySpleenUse,
   print,
+  putCloset,
   retrieveItem,
-  round,
   spleenLimit,
   urlEncode,
   use,
@@ -29,10 +29,14 @@ import {
   $familiars,
   $item,
   $items,
+  $monster,
   $phylum,
+  ChestMimic,
+  gameDay,
   get,
   getBanishedMonsters,
   have,
+  set,
   Snapper,
 } from "libram";
 
@@ -282,46 +286,45 @@ export function deleteJunkKmails() {
   });
 }
 
-export class YouRobot {
-  static energy(): number {
-    return myRobotEnergy();
-  }
+export const realMonth = gameDay().getMonth();
+export const realDay = gameDay().getDate();
+export const halloween = gamedayToInt() === 79 || (realMonth === 10 && realDay === 31);
 
-  static doCollectEnergy(): void {
-    visitUrl("place.php?whichplace=scrapheap&action=sh_getpower");
-  }
-
-  static expectedEnergyNextCollect(): number {
-    const raw = (25 + get("youRobotPoints")) * 0.85 ** get("_energyCollected");
-    return round(raw);
-  }
-
-  static doChronolith(): void {
-    visitUrl("place.php?whichplace=scrapheap&action=sh_chronobo");
-  }
-
-  static expectedChronolithCost(): number {
-    return get("_chronolithNextCost");
-  }
+export function pvpCloset(num: number) {
+  const threshold = 10000;
+  $items``
+    .filter(
+      (it) =>
+        itemAmount(it) > 0 &&
+        it.tradeable &&
+        it.discardable &&
+        !it.quest &&
+        !it.gift &&
+        mallPrice(it) >= threshold,
+    )
+    .forEach((it) => {
+      putCloset(itemAmount(it), it);
+      print(`Closeting valuables (${mallPrice(it)} meat): ${it}`);
+    });
+  set(`_safetyCloset${num}`, true);
 }
 
-export function isChronoWorthIt(): boolean {
-  const currentAdventures = myAdventures();
-  let futureAdventures = currentAdventures;
-  let currentEnergy = YouRobot.energy();
-  let numEnergyCollects = 0;
+const goosoMultiplier = have($familiar`Grey Goose`) ? 2 : 1;
 
-  while (futureAdventures > 0) {
-    futureAdventures -= 1;
-    currentEnergy += Math.round(YouRobot.expectedEnergyNextCollect() * 0.85 ** numEnergyCollects);
-    numEnergyCollects += 1;
-
-    if (currentEnergy >= YouRobot.expectedChronolithCost()) {
-      break;
-    }
-  }
-
-  return (
-    currentEnergy >= YouRobot.expectedChronolithCost() && futureAdventures + 9 > currentAdventures
-  );
+function meatOrItemFarm(): boolean {
+  return mallPrice($item`jumping horseradish`) > mallPrice($item`Sacramento wine`)
+    ? mallPrice($item`jumping horseradish`) > 3000 / goosoMultiplier
+    : mallPrice($item`Sacramento wine`) > 3000 / goosoMultiplier;
 }
+
+export const copyTarget = () =>
+  ChestMimic.differentiableQuantity($monster`Witchess Knight`) > 0
+    ? `target="Witchess Knight"`
+    : ChestMimic.differentiableQuantity($monster`Witchess Bishop`) > 0
+    ? `target="Witchess Bishop"`
+    : !meatOrItemFarm()
+    ? ``
+    : mallPrice($item`jumping horseradish`) > mallPrice($item`Sacramento wine`)
+    ? `target="Witchess Knight"`
+    : `target="Witchess Bishop"`;
+

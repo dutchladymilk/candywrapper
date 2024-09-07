@@ -4,7 +4,9 @@ import {
   buyUsingStorage,
   cliExecute,
   drink,
+  eat,
   Effect,
+  fullnessLimit,
   getClanName,
   getWorkshed,
   hippyStoneBroken,
@@ -13,10 +15,10 @@ import {
   myAdventures,
   myAscensions,
   myDaycount,
+  myFullness,
   myInebriety,
   myLevel,
   myMaxhp,
-  myRobotEnergy,
   mySign,
   numericModifier,
   print,
@@ -25,9 +27,9 @@ import {
   restoreHp,
   restoreMp,
   retrieveItem,
-  round,
   setProperty,
   storageAmount,
+  toBoolean,
   toInt,
   use,
   useFamiliar,
@@ -55,17 +57,19 @@ import {
 
 import { args } from "../args";
 
+import { GarboWeenQuest } from "./Garboween";
 import { getCurrentLeg, Leg, Quest } from "./structure";
 import {
   backstageItemsDone,
   bestFam,
+  copyTarget,
   doneAdventuring,
+  halloween,
   haveAll,
-  isChronoWorthIt,
   maxBase,
+  pvpCloset,
   stooperDrunk,
   totallyDrunk,
-  YouRobot,
 } from "./utils";
 
 let pajamas = false;
@@ -80,10 +84,6 @@ function firstWorkshed() {
 }
 const sasqBonus = (0.5 * 30 * 1000) / get("valueOfAdventure");
 const ratskinBonus = (0.3 * 40 * 1000) / get("valueOfAdventure");
-const chronolithDebug1 = () =>
-  (YouRobot.expectedChronolithCost() - myRobotEnergy()) / YouRobot.expectedEnergyNextCollect();
-const chronolithDebug2 = () => (chronolithDebug1() <= 1 ? 0 : round(chronolithDebug1()));
-const chronolithDebug3 = () => myAdventures() - chronolithDebug2() >= 0;
 
 export function RobotQuests(): Quest[] {
   return [
@@ -142,6 +142,7 @@ export function RobotQuests(): Quest[] {
         },
         {
           name: "Break Stone",
+          ready: () => !args.safepvp,
           completed: () => hippyStoneBroken() || !args.pvp,
           do: (): void => {
             visitUrl("peevpee.php?action=smashstone&pwd&confirm=on", true);
@@ -153,25 +154,6 @@ export function RobotQuests(): Quest[] {
           completed: () => step("questL13Final") > 11,
           do: () => cliExecute(args.robotscript),
           clear: "all",
-          tracking: "Run",
-        },
-        {
-          name: "ChronoLith",
-          prepare: (): void => {
-            print(`Current Robot Energy is ${myRobotEnergy()}.`);
-            print(`Next chronolith costs ${YouRobot.expectedChronolithCost()}`);
-            print(`It would cost ${chronolithDebug2()} adventures to gain 10 adventures`);
-            print(`Is this possible with current adventures? ${chronolithDebug3()}`);
-          },
-          completed: () => !isChronoWorthIt(),
-          do: (): void => {
-            while (isChronoWorthIt()) {
-              while (YouRobot.energy() < YouRobot.expectedChronolithCost()) {
-                YouRobot.doCollectEnergy();
-              }
-              YouRobot.doChronolith();
-            }
-          },
           tracking: "Run",
         },
         {
@@ -195,6 +177,12 @@ export function RobotQuests(): Quest[] {
           name: "Pull All",
           completed: () => get("lastEmptiedStorage") === myAscensions(),
           do: () => cliExecute("pull all; refresh all"),
+        },
+        {
+          name: "PvP Closet Safety 1",
+          ready: () => args.pvp && get("autoSatisfyWithCloset"),
+          completed: () => toBoolean(get("_safetyCloset1")),
+          do: () => pvpCloset(1),
         },
         {
           name: "Install First Workshed",
@@ -440,11 +428,27 @@ export function RobotQuests(): Quest[] {
           do: () => drink(1, $item`steel margarita`),
         },
         {
+          name: "GarboWeen",
+          ready: () => halloween,
+          completed: () => myAdventures() === 0 || stooperDrunk(),
+          do: () => GarboWeenQuest(),
+        },
+        {
+          name: "Pre-Garbo Food Time",
+          ready: () => myFullness() + 2 < fullnessLimit(),
+          completed: () => have($effect`Feeling Fancy`),
+          prepare: () => retrieveItem($item`roasted vegetable focaccia`),
+          do: () => eat($item`roasted vegetable focaccia`),
+          clear: "all",
+          tracking: "Garbo",
+          limit: { tries: 1 }, //this will run again after installing CMC, by magic
+        },
+        {
           name: "Garbo",
           ready: () => get("_stenchAirportToday") || get("stenchAirportAlways"),
           completed: () => myAdventures() === 0 || stooperDrunk(),
           prepare: () => uneffect($effect`Beaten Up`),
-          do: () => cliExecute(args.garbo),
+          do: () => cliExecute(`${args.garbo} ${copyTarget()}`),
           post: () =>
             $effects`Power Ballad of the Arrowsmith, Stevedave's Shanty of Superiority, The Moxious Madrigal, The Magical Mojomuscular Melody, Aloysius' Antiphon of Aptitude, Ur-Kel's Aria of Annoyance`
               .filter((ef) => have(ef))
@@ -461,13 +465,19 @@ export function RobotQuests(): Quest[] {
           tracking: "Garbo",
         },
         {
+          name: "PvP Closet Safety 2",
+          ready: () => args.pvp && get("autoSatisfyWithCloset"),
+          completed: () => toBoolean(get("_safetyCloset2")),
+          do: () => pvpCloset(2),
+        },
+        {
           name: "PvP",
           ready: () => doneAdventuring(),
           completed: () => pvpAttacksLeft() === 0 || !hippyStoneBroken(),
           do: (): void => {
             cliExecute("unequip");
             cliExecute("UberPvPOptimizer");
-            cliExecute("swagger");
+            cliExecute(`PVP_MAB target=${args.pvpTarget}`);
           },
         },
         {
@@ -512,6 +522,12 @@ export function RobotQuests(): Quest[] {
             have($effect`Offhand Remarkable`) ||
             get("_aug13Cast", false),
           do: () => useSkill($skill`Aug. 13th: Left/Off Hander's Day!`),
+        },
+        {
+          name: "PvP Closet Safety 3",
+          ready: () => args.pvp && get("autoSatisfyWithCloset"),
+          completed: () => toBoolean(get("_safetyCloset3")),
+          do: () => pvpCloset(3),
         },
         {
           name: "Item Cleanup",
