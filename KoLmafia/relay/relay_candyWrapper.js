@@ -1349,7 +1349,7 @@ var $modifiers = createPluralConstant(external_kolmafia_.Modifier);
  *
  * @category In-game constant
  */
-var $monster = createSingleConstant(external_kolmafia_.Monster);
+var template_string_$monster = createSingleConstant(external_kolmafia_.Monster);
 /**
  * A list of Monsters specified by a comma-separated list of names.
  * For a list of all possible Monsters, leave the template string blank.
@@ -2235,7 +2235,7 @@ function unequip(thing) {
  */
 function gameDay() {
   var _todayToString$match;
-  var _map = ((_todayToString$match = todayToString().match(/(\d{4})(\d{2})(\d{2})/)) !== null && _todayToString$match !== void 0 ? _todayToString$match : []).map(Number),
+  var _map = ((_todayToString$match = (0,external_kolmafia_.todayToString)().match(/(\d{4})(\d{2})(\d{2})/)) !== null && _todayToString$match !== void 0 ? _todayToString$match : []).map(Number),
     _map2 = lib_slicedToArray(_map, 4),
     year = _map2[1],
     month = _map2[2],
@@ -6745,12 +6745,7 @@ function printProfits(records) {
   printProfitSegment("Total", profits_sum(records, () => true), "black");
 }
 ;// CONCATENATED MODULE: ./src/tasks/utils.ts
-var utils_templateObject, utils_templateObject2, utils_templateObject3, utils_templateObject4, utils_templateObject5, utils_templateObject6, utils_templateObject7, utils_templateObject8, utils_templateObject9, utils_templateObject10, utils_templateObject11, utils_templateObject12, utils_templateObject13, utils_templateObject14, utils_templateObject15, utils_templateObject16, utils_templateObject17, utils_templateObject18, utils_templateObject19, utils_templateObject20, utils_templateObject21, utils_templateObject22, utils_templateObject23, utils_templateObject24, utils_templateObject25, utils_templateObject26, utils_templateObject27, utils_templateObject28, utils_templateObject29, utils_templateObject30, utils_templateObject31, utils_templateObject32, utils_templateObject33, utils_templateObject34, utils_templateObject35, utils_templateObject36, utils_templateObject37, utils_templateObject38, utils_templateObject39, utils_templateObject40, utils_templateObject41, utils_templateObject42, utils_templateObject43, utils_templateObject44, utils_templateObject45;
-function utils_slicedToArray(arr, i) { return utils_arrayWithHoles(arr) || utils_iterableToArrayLimit(arr, i) || tasks_utils_unsupportedIterableToArray(arr, i) || utils_nonIterableRest(); }
-function utils_nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function utils_iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
-function utils_arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function tasks_utils_createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = tasks_utils_unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+var utils_templateObject, utils_templateObject2, utils_templateObject3, utils_templateObject4, utils_templateObject5, utils_templateObject6, utils_templateObject7, utils_templateObject8, utils_templateObject9, utils_templateObject10, utils_templateObject11, utils_templateObject12, utils_templateObject13, utils_templateObject14, utils_templateObject15, utils_templateObject16, utils_templateObject17, utils_templateObject18, utils_templateObject19, utils_templateObject20, utils_templateObject21, utils_templateObject22, utils_templateObject23, utils_templateObject24, utils_templateObject25, utils_templateObject26, utils_templateObject27, utils_templateObject28, utils_templateObject29, utils_templateObject30, utils_templateObject31, utils_templateObject32, utils_templateObject33, utils_templateObject34, utils_templateObject35, utils_templateObject36, utils_templateObject37, utils_templateObject38, utils_templateObject39, utils_templateObject40, utils_templateObject41, utils_templateObject42, utils_templateObject43, utils_templateObject44, utils_templateObject45, utils_templateObject46;
 function utils_toConsumableArray(arr) { return utils_arrayWithoutHoles(arr) || utils_iterableToArray(arr) || tasks_utils_unsupportedIterableToArray(arr) || utils_nonIterableSpread(); }
 function utils_nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function tasks_utils_unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return tasks_utils_arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return tasks_utils_arrayLikeToArray(o, minLen); }
@@ -6836,29 +6831,56 @@ function isGoodGarboScript(scr) {
 function backstageItemsDone() {
   return (have($item(utils_templateObject31 || (utils_templateObject31 = utils_taggedTemplateLiteral(["giant marshmallow"])))) ? 1 : 0) + (have($item(utils_templateObject32 || (utils_templateObject32 = utils_taggedTemplateLiteral(["beer-scented teddy bear"])))) ? 1 : 0) + itemAmount($item(utils_templateObject33 || (utils_templateObject33 = utils_taggedTemplateLiteral(["gin-soaked blotter paper"])))) >= 2 && (have($item(utils_templateObject34 || (utils_templateObject34 = utils_taggedTemplateLiteral(["booze-soaked cherry"])))) ? 1 : 0) + (have($item(utils_templateObject35 || (utils_templateObject35 = utils_taggedTemplateLiteral(["comfy pillow"])))) ? 1 : 0) + itemAmount($item(utils_templateObject36 || (utils_templateObject36 = utils_taggedTemplateLiteral(["sponge cake"])))) >= 2;
 }
-var commaValue = new Map([[template_string_$item(utils_templateObject37 || (utils_templateObject37 = utils_taggedTemplateLiteral(["stomp box"]))), (0,external_kolmafia_.mallPrice)(template_string_$item(utils_templateObject38 || (utils_templateObject38 = utils_taggedTemplateLiteral(["stomp box"]))))], [template_string_$item(utils_templateObject39 || (utils_templateObject39 = utils_taggedTemplateLiteral(["aquaviolet jub-jub bird"]))), (0,external_kolmafia_.mallPrice)(template_string_$item(utils_templateObject40 || (utils_templateObject40 = utils_taggedTemplateLiteral(["aquaviolet jub-jub bird"]))))], [template_string_$item(utils_templateObject41 || (utils_templateObject41 = utils_taggedTemplateLiteral(["charpuce jub-jub bird"]))), (0,external_kolmafia_.mallPrice)(template_string_$item(utils_templateObject42 || (utils_templateObject42 = utils_taggedTemplateLiteral(["charpuce jub-jub bird"]))))], [template_string_$item(utils_templateObject43 || (utils_templateObject43 = utils_taggedTemplateLiteral(["crimsilion jub-jub bird"]))), (0,external_kolmafia_.mallPrice)(template_string_$item(utils_templateObject44 || (utils_templateObject44 = utils_taggedTemplateLiteral(["crimsilion jub-jub bird"]))))]]);
-function findCheapRun() {
-  var minItem = $item(utils_templateObject45 || (utils_templateObject45 = utils_taggedTemplateLiteral(["stomp box"])));
-  var minValue = -1;
-  var _iterator = tasks_utils_createForOfIteratorHelper(commaValue),
-    _step;
-  try {
-    for (_iterator.s(); !(_step = _iterator.n()).done;) {
-      var _step$value = utils_slicedToArray(_step.value, 2),
-        item = _step$value[0],
-        value = _step$value[1];
-      if (value < minValue) {
-        minValue = value;
-        minItem = item;
-      }
-    }
-  } catch (err) {
-    _iterator.e(err);
-  } finally {
-    _iterator.f();
-  }
-  return minItem;
+function getKmails() {
+  var caller = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "GreyDay";
+  var buffer = visitUrl("api.php?pwd&what=kmail&count=100&for=".concat(urlEncode(caller)));
+  var kmails = JSON.parse(buffer);
+  kmails.forEach(mail => {
+    mail.delete = () => {
+      var del = "messages.php?the_action=delete&box=Inbox&pwd&sel".concat(mail.id, "=on");
+      return visitUrl(del).includes("1 message deleted.");
+    };
+  });
+  return kmails.filter(k => k.type === "normal");
 }
+function isJunkKmail(kmail) {
+  if (kmail.fromname === "Lady Spookyraven's Ghost" || kmail.fromname === "The Loathing Postal Service" && kmail.message.includes("telegram from Lady Spookyraven")) {
+    return true;
+  }
+  if ((kmail.fromname.toLowerCase() === "cheesefax" || kmail.fromname.toLowerCase() === "averagechat") && kmail.message.includes("completed your relationship fortune test!")) {
+    return true;
+  }
+  return false;
+}
+function deleteJunkKmails() {
+  getKmails().forEach(mail => {
+    if (!isJunkKmail(mail)) {
+      return;
+    }
+    print("Deleting junk kmail from ".concat(mail.fromname));
+    var state = mail.delete();
+    if (state) {
+      return;
+    }
+    print("Failed to delete kmail.", "red");
+  });
+}
+var realMonth = gameDay().getMonth();
+var realDay = gameDay().getDate();
+var halloween = (0,external_kolmafia_.gamedayToInt)() === 79 || realMonth === 10 && realDay === 31;
+function pvpCloset(num) {
+  var threshold = 10000;
+  $items(utils_templateObject37 || (utils_templateObject37 = utils_taggedTemplateLiteral([""]))).filter(it => itemAmount(it) > 0 && it.tradeable && it.discardable && !it.quest && !it.gift && mallPrice(it) >= threshold).forEach(it => {
+    putCloset(itemAmount(it), it);
+    print("Closeting valuables (".concat(mallPrice(it), " meat): ").concat(it));
+  });
+  set("_safetyCloset".concat(num), true);
+}
+var goosoMultiplier = lib_have(template_string_$familiar(utils_templateObject38 || (utils_templateObject38 = utils_taggedTemplateLiteral(["Grey Goose"])))) ? 2 : 1;
+function meatOrItemFarm() {
+  return mallPrice($item(utils_templateObject39 || (utils_templateObject39 = utils_taggedTemplateLiteral(["jumping horseradish"])))) > mallPrice($item(utils_templateObject40 || (utils_templateObject40 = utils_taggedTemplateLiteral(["Sacramento wine"])))) ? mallPrice($item(utils_templateObject41 || (utils_templateObject41 = utils_taggedTemplateLiteral(["jumping horseradish"])))) > 3000 / goosoMultiplier : mallPrice($item(utils_templateObject42 || (utils_templateObject42 = utils_taggedTemplateLiteral(["Sacramento wine"])))) > 3000 / goosoMultiplier;
+}
+var copyTarget = () => ChestMimic.differentiableQuantity($monster(utils_templateObject43 || (utils_templateObject43 = utils_taggedTemplateLiteral(["Witchess Knight"])))) > 0 ? "target=\"Witchess Knight\"" : ChestMimic.differentiableQuantity($monster(utils_templateObject44 || (utils_templateObject44 = utils_taggedTemplateLiteral(["Witchess Bishop"])))) > 0 ? "target=\"Witchess Bishop\"" : !meatOrItemFarm() ? "" : mallPrice($item(utils_templateObject45 || (utils_templateObject45 = utils_taggedTemplateLiteral(["jumping horseradish"])))) > mallPrice($item(utils_templateObject46 || (utils_templateObject46 = utils_taggedTemplateLiteral(["Sacramento wine"])))) ? "target=\"Witchess Knight\"" : "target=\"Witchess Bishop\"";
 ;// CONCATENATED MODULE: ./src/args.ts
 var args_templateObject, args_templateObject2, args_templateObject3, args_templateObject4, args_templateObject5, args_templateObject6;
 function args_toConsumableArray(arr) { return args_arrayWithoutHoles(arr) || args_iterableToArray(arr) || args_unsupportedIterableToArray(arr) || args_nonIterableSpread(); }
@@ -6913,6 +6935,14 @@ var args_args = Args.create("CandyWrapper", "Written by Seraphiii. This is a ful
   pvp: Args.flag({
     help: "If true, break hippy stone and do pvp.",
     default: false
+  }),
+  safepvp: Args.flag({
+    help: "If true, break hippy stone and do only before ascension.",
+    default: false
+  }),
+  pvpTarget: Args.string({
+    help: "When doing PvP, what should we fight for? fame, loot or flowers?",
+    default: "flowers"
   }),
   astralpet: Args.custom({
     help: "Choose the astral pet you want to buy in valhalla",
